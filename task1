@@ -1,24 +1,25 @@
+#include <iostream>
 #include <cmath>
 using namespace std;
 
 /**
- *@param x - çíà÷åíèå ïåðåìåííîé x
- *@param y - çíà÷åíèå ïåðåìåííîé y
- *@param z - çíà÷åíèå ïåðåìåííîé z
- *@return - âîçâðàùàåò ðàññ÷èòàííîå çíà÷åíèå
+ *@param x - значение переменной x
+ *@param y - значение переменной y
+ *@param z - значение переменной z
+ *@return - возращает вычесленное значение
  */
 double geta(const double x, const double y, const double z );
 
 /**
- *@param x - çíà÷åíèå ïåðåìåííîé x
- *@param y - çíà÷åíèå ïåðåìåííîé y
- *@param z - çíà÷åíèå ïåðåìåííîé z
- *@return - âîçâðàùàåò ðàññ÷èòàííîå çíà÷åíèå
+ *@param x - значение переменной x
+ *@param y - значение переменной y
+ *@param z - значение переменной z
+ *@return - возращает вычесленное значение
  */
 
  double getb(const double x, const double y, const double z);
 /**
- *@return - âîçâðàùàåò 0, åñëè ïðîãðàììà âûïîëíåíà êîððåêòíî
+ *@return - возращает 0 если программа выполнена корректно
  */
 int main()
 
