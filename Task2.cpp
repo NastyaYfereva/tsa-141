@@ -2,15 +2,7 @@
 
 using namespace std;
 
-/**
- * @brief Конвертирует сантиметры в дюймы
- * @param cm Длина в сантиметрах
- * @return Длина в дюймах
- */
-double convertToInches(double cm) 
-{
-    return cm / 2.5; // 1 дюйм = 2.5 см
-}
+double convertToInches(double cm);
 
 /**
  * @brief Точка входа в программу
@@ -21,7 +13,7 @@ int main()
     cout << "Перевод сантиметров в дюймы" << endl;
     cout << "1 дюйм = 2.5 см" << endl;
     
-    double centimeters;
+    double centimeters = 0; 
     cout << "Введите длину в сантиметрах: ";
     cin >> centimeters;
     
@@ -35,4 +27,14 @@ int main()
     cout << "Результат: " << centimeters << " см = " << inches << " дюймов" << endl;
     
     return 0;
+}
+
+/**
+ * @brief Конвертирует сантиметры в дюймы
+ * @param cm Длина в сантиметрах
+ * @return Длина в дюймах
+ */
+double convertToInches(double cm) 
+{
+    return cm / 2.5; // 1 дюйм = 2.5 см
 }
