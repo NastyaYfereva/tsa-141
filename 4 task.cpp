@@ -32,18 +32,19 @@ int main()
     setlocale(LC_ALL, "Russian");
 
     cout << "Табулирование функции y = ln(1/(2x + x²))" << endl;
-    cout << "Интервал x ∈ [-2, 0], шаг 0.2 (по условию задания 16)" << endl;
-
-    // Фиксированные параметры из задания
-    double startX = -2.0;
-    double endX = 0.0;
-    double step = 0.2;
+    cout << "Введите начальное значение x: ";
+    double startX = getValue();
+    
+    cout << "Введите конечное значение x: ";
+    double endX = getValue();
+    
+    double step = getPositiveStep();
 
     cout << "\nРезультаты табулирования:" << endl;
     cout << "x\t|\ty" << endl;
     cout << "-----------------------" << endl;
 
-    for (double x = startX; x <= endX + 1e-9; x += step)
+    for (double x = startX; x <= endX + numeric_limits<double>::epsilon(); x += step)
     {
         try {
             double y = calculateFunction(x);
@@ -59,7 +60,7 @@ int main()
 
 double getValue()
 {
-    double value;
+    double value = 0.0;
     cin >> value;
     if (cin.fail())
     {
@@ -72,15 +73,15 @@ double getValue()
 double calculateFunction(const double x)
 {
     double denominator = 2 * x + pow(x, 2);
-    if (denominator >= 0) {
-        throw runtime_error("аргумент логарифма должен быть отрицательным (2x + x² < 0)");
+    if (denominator >= 0 || abs(denominator) < numeric_limits<double>::epsilon()) {
+        throw runtime_error("выражение (2x + x²) должно быть строго положительным");
     }
-    return log(1 / denominator);
+    return log(1.0 / denominator);
 }
 
 double getPositiveStep()
 {
-    double step;
+    double step = 0.0;
     cout << "Введите шаг: ";
     step = getValue();
     if (step <= 0)
