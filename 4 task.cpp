@@ -1,93 +1,105 @@
+/**
+ * @brief Программа для табулирования функции y = ln(1/(2x + x²))
+ */
+
 #include <iostream>
 #include <cmath>
 #include <limits>
+
 using namespace std;
 
 /**
- * @brief Считывает значения с клавиатуры с проверкой ввода
- * @return возвращает значение, если оно правильное, иначе завершает программу
+ * @brief Получает числовое значение от пользователя
+ * @return Введенное пользователем число типа double
+ * @note При некорректном вводе выводит сообщение об ошибке и завершает программу
  */
 double getValue();
 
 /**
- * @brief Функция для вычисления значения функции y = ln(1/(2x + x²))
- * @param x - аргумент функции
- * @return значение функции
- * @throws runtime_error если вычисление невозможно
+ * @brief Проверяет корректность шага табулирования
+ * @param step Значение шага для проверки
+ * @note Если шаг отрицательный или нулевой, программа завершается
  */
-double calculateFunction(const double x);
+void checkStep(const double step);
 
 /**
- * @brief Функция для проверки, что шаг положительный
- * @return шаг
+ * @brief Вычисляет значение функции y = ln(1/(2x + x²))
+ * @param x Аргумент функции
+ * @return Значение функции в точке x
+ * @pre Функция должна быть определена в точке x (проверяется isDomain)
  */
-double getPositiveStep();
+double getY(const double x);
 
 /**
- * @brief Точка входа в программу
- * @return 0 в случае успешного выполнения, 1 при ошибке
+ * @brief Проверяет принадлежность точки x области определения функции
+ * @param x Проверяемая точка
+ * @return true если функция определена в точке x, false в противном случае
+ */
+bool isDomain(const double x);
+
+/**
+ * @brief Главная функция программы
+ * @return 0 при успешном выполнении
+ * @details Запрашивает у пользователя интервал и шаг табулирования,
+ * затем выводит таблицу значений функции или сообщения об ошибках
  */
 int main()
 {
-    setlocale(LC_ALL, "Russian");
-
-    cout << "Табулирование функции y = ln(1/(2x + x²))" << endl;
-    cout << "Введите начальное значение x: ";
-    double startX = getValue();
+    // Ввод начальных параметров
+    cout << "Enter xn: ";
+    double xstart = getValue();
+    cout << "Enter xk: ";
+    double xend = getValue();
+    cout << "Enter step: ";
+    double step = getValue();
     
-    cout << "Введите конечное значение x: ";
-    double endX = getValue();
+    // Проверка корректности шага
+    checkStep(step);
     
-    double step = getPositiveStep();
-
-    cout << "\nРезультаты табулирования:" << endl;
-    cout << "x\t|\ty" << endl;
-    cout << "-----------------------" << endl;
-
-    for (double x = startX; x <= endX + numeric_limits<double>::epsilon(); x += step)
+    // Табулирование функции
+    for (double x = xstart; x < xend + step; x += step)
     {
-        try {
-            double y = calculateFunction(x);
-            cout << x << "\t|\t" << y << endl;
-        } 
-        catch (const runtime_error& e) {
-            cout << x << "\t|\t" << "Ошибка: " << e.what() << endl;
+        cout << "x = " << x;
+        if (isDomain(x))
+        {
+            cout << " y = " << getY(x) << endl;
+        }
+        else
+        {
+            cout << " not in domain" << endl;
         }
     }
-
     return 0;
 }
 
 double getValue()
 {
-    double value = 0.0;
+    double value;
     cin >> value;
     if (cin.fail())
     {
-        cout << "Некорректное значение" << endl;
-        exit(1);
+        cout << "Incorrect value" << endl;
+        abort();
     }
     return value;
 }
 
-double calculateFunction(const double x)
+void checkStep(const double step)
 {
-    double denominator = 2 * x + pow(x, 2);
-    if (denominator >= 0 || abs(denominator) < numeric_limits<double>::epsilon()) {
-        throw runtime_error("выражение (2x + x²) должно быть строго положительным");
-    }
-    return log(1.0 / denominator);
-}
-
-double getPositiveStep()
-{
-    double step = 0.0;
-    cout << "Введите шаг: ";
-    step = getValue();
     if (step <= 0)
     {
-        cout << "Ошибка. Шаг должен быть положительным." << endl;
-        exit(1);
+        cout << "Error: step must be positive" << endl;
+        abort();
     }
-    return step;
+}
+
+double getY(const double x)
+{
+    return log(1.0 / (2 * x + x * x));
+}
+
+bool isDomain(const double x)
+{
+    double denominator = 2 * x + x * x;
+    return denominator > numeric_limits<double>::epsilon();
 }
