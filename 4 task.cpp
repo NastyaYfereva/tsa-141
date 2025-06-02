@@ -52,10 +52,10 @@ int main()
     double xend = getValue();
     cout << "Enter step: ";
     double step = getValue();
-    
+
     // Проверка корректности шага
     checkStep(step);
-    
+
     // Табулирование функции
     for (double x = xstart; x < xend + step; x += step)
     {
@@ -74,7 +74,7 @@ int main()
 
 double getValue()
 {
-    double value;
+    double value = 0.0;
     cin >> value;
     if (cin.fail())
     {
