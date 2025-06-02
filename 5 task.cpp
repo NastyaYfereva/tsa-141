@@ -1,122 +1,146 @@
 #include <iostream>
 #include <cmath>
-#include <limits>
-
+#include <iomanip>
 using namespace std;
 
-int getValue();
-double getDouble();
-void checkN(const int n);
-void checkE(const double e);
-double sumN(const int n);
-double sumE(const double e);
-double getNext(double& current, double& k_fact_sq_plus_next_fact, const int k);
+/**
+ * @brief Считывает целое значение с клавиатуры с проверкой ввода
+ * @return Введенное значение
+ */
+double getValue();
 
-int main()
+/**
+ * @brief Считывает вещественное значение с клавиатуры с проверкой ввода
+ * @return Введенное значение
+ */
+double getDouble();
+
+/**
+ * @brief проверяет, что введенное значение удовлетваряет условию n>=0
+ * @param n считанное значение
+ */
+void checkN(const int n);
+
+/**
+ * @brief проверяет, что введенное значение удовлетваряет условию e>0
+ * @param e считанное значение
+ */
+void checkE(const double e);
+
+/**
+ * @brief Вычисляет сумму первых n членов ряда ∑[(-1)^k * (1+k)/(k+2)!]
+ * @param n Количество суммируемых членов
+ * @return Значение частичной суммы ряда
+ */
+double sumN(const int n);
+
+/**
+ * @brief Вычисляет следующий член ряда по рекуррентной формуле
+ * @param k Текущий индекс (номер члена)
+ * @return Следующий член ряда
+ */
+double getNext(const double current, const int k);
+
+/**
+ * @brief Вычисляет сумму членов ряда, больших или равных заданной точности по модулю
+ * @param e Требуемая точность вычислений
+ * @return Значение суммы с заданной точностью
+ */
+double sumE(const double e);
+
+/**
+ * @brief Точка входа в программу
+ * @return возвращает 0, если программа выполнена верно
+ */
+int main() 
 {
-    cout << "Вычисление суммы для ряда: (-1)^k * k / ( (k!)^2 + (k+1)! )" << endl << endl;
+    setlocale(LC_ALL, "Russian");
     
-    cout << "Введите число членов ряда: ";
+    cout << "Введите количество членов ряда (n >= 0): ";
     int n = getValue();
     checkN(n);
-    cout << "Сумма первых " << n << " членов ряда равна " << sumN(n) << endl;
+    cout << "Сумма первых " << n << " членов ряда: " << fixed << setprecision(6) << sumN(n) << endl;
     
-    cout << "Введите точность вычислений: ";
+    cout << "Введите точность e (>0): ";
     double e = getDouble();
     checkE(e);
-    cout << "Сумма членов ряда с точностью " << e << " равна " << sumE(e) << endl;
+    cout << "Сумма членов ряда с точностью " << e << ": " << sumE(e) << endl;
     
     return 0;
 }
 
-int getValue()
+double getValue()
 {
     int value = 0;
     cin >> value;
-    if (cin.fail())
+    if (cin.fail()) 
     {
-        cout << "Ошибка ввода" << endl;
+        cout << "Некорректное значение" << endl;
         abort();
     }
     return value;
 }
 
-double getDouble()
+double getDouble() 
 {
-    double value = 0.0;
+    double value = 0;
     cin >> value;
-    if (cin.fail())
+    if (cin.fail()) 
     {
-        cout << "Ошибка ввода" << endl;
+        cerr << "Ошибка ввода!" << endl;
         abort();
     }
     return value;
 }
 
-void checkN(const int n)
+void checkE(const double e) 
 {
-    if (n < 1)
+    if (e <= 0) 
     {
-        cout << "Ошибка: n должно быть >= 1" << endl;
+        cerr << "Ошибка: e должно быть > 0!" << endl;
         abort();
     }
 }
 
-void checkE(const double e)
+void checkN(const int n) 
 {
-    if (e <= 0)
+    if (n < 0) 
     {
-        cout << "Ошибка: e должно быть > 0" << endl;
+        cerr << "Ошибка: n должно быть >= 0!" << endl;
         abort();
     }
 }
 
-double getNext(double& current, double& k_fact_sq_plus_next_fact, const int k)
-{
-    // Вычисляем новые значения:
-    // (k+1)! = (k+1) * k!
-    // (k+1)!^2 = (k+1)^2 * (k!)^2
-    // (k+2)! = (k+2)*(k+1)!
+double sumN(const int n) 
+{ 
+    double current = 1.0;
+    double sum = current; 
     
-    double next_k_fact_sq_plus_next_fact = pow(k+1, 2) * (k_fact_sq_plus_next_fact - (k+1)) + (k+2)*(k+1)*(k_fact_sq_plus_next_fact - pow(k,2));
-    
-    double next = -current * (k/(k-1.0)) * 
-                 (k_fact_sq_plus_next_fact / next_k_fact_sq_plus_next_fact);
-    
-    k_fact_sq_plus_next_fact = next_k_fact_sq_plus_next_fact;
-    return next;
-}
-
-double sumN(const int n)
-{
-    if (n == 0) return 0;
-    
-    double k_fact_sq_plus_next_fact = 1*1 + 2; // для k=1: 1!^2 + 2! = 1 + 2 = 3
-    double current = -1.0 / 3.0; // первый член при k=1
-    double sum = current;
-    
-    for (int k = 2; k <= n; k++)
-    {
-        current = getNext(current, k_fact_sq_plus_next_fact, k);
-        sum += current;
+    for (int k = 0; k < n; k++) 
+    { 
+        current = getNext(current, k);
+        sum += current; 
     }
-    
     return sum;
 }
 
-double sumE(const double e)
+double getNext(const double current, const int k) 
 {
-    double k_fact_sq_plus_next_fact = 1*1 + 2; // для k=1
-    double current = -1.0 / 3.0; // первый член
+    double numerator = (current * (-1.0) * (k + 2)) / ((k + 3) * (k + 1));
+    return numerator;
+}
+
+double sumE(const double e) 
+{
     double sum = 0.0;
-    int k = 1;
-    
-    while (fabs(current) >= e)
+    double current = 1.0;
+    int k = 0;
+
+    while (abs(current) >= e)
     {
         sum += current;
+        current = getNext(current, k);
         k++;
-        current = getNext(current, k_fact_sq_plus_next_fact, k);
     }
-    
     return sum;
 }
