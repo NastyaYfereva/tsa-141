@@ -123,7 +123,7 @@ enum {RANDOM = 5, MANUAL = 6};
  */
 int main()
 {
-    setlocale(LC_ALL, "ru_RU.UTF-8")
+    setlocale(LC_ALL, "ru_RU.UTF-8");
     cout << "Введите M: ";
     size_t m = getSize();
     cout << "Введите N: ";
