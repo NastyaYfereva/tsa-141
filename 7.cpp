@@ -97,7 +97,7 @@ int findMinInRow(const int* row, const size_t n);
  * @param globalMin Глобальный минимум в массиве
  * @return Количество строк для вставки
  */
-size_t calculateInsertCount(int** array, size_t m, const size_t n, int globalMin);
+size_t calculateInsertCount(int** array, size_t m, const size_t n, const int globalMin);
 
 /**
  * @brief Вставляет строки (1,2,3...) после строк, содержащих минимальное значение
@@ -108,7 +108,7 @@ size_t calculateInsertCount(int** array, size_t m, const size_t n, int globalMin
  * @param insertCount Количество строк для вставки
  * @return Указатель на новый массив и его новый размер через pair
  */
-pair<int**, size_t> insertRowsAfterMin(int** array, size_t m, const size_t n, int globalMin, size_t insertCount);
+pair<int**, size_t> insertRowsAfterMin(int** array, size_t m, const size_t n, const int globalMin, const size_t insertCount);
 
 /**
  * @brief Перечисление для выбора способа заполнения массива
