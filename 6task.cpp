@@ -1,90 +1,89 @@
-﻿#include <iostream>
+#include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <cmath>
+
 using namespace std;
 
 /**
- * @brief Считывает целое значение с клавиатуры с проверкой ввода
- * @return Введенное значение
+ * @brief Безопасное чтение целого числа с клавиатуры
+ * @return Введенное целое число
+ * @throws abort() при некорректном вводе
  */
 int getValue();
 
 /**
- * @brief Получает и проверяет размер массива
- * @return Размер массива
+ * @brief Получение и проверка размера массива
+ * @return Размер массива (size_t)
+ * @throws abort() если размер <= 0
  */
 size_t getSize();
 
 /**
- * @brief Проверяет корректность размера массива
- * @param n Проверяемое значение размера
- * @return Завершает программу при n <= 0
+ * @brief Проверка корректности размера массива
+ * @param n Проверяемый размер массива
+ * @throws abort() если n <= 0
  */
 void checkN(const int n);
 
 /**
- * @brief Заполняет массив значениями
+ * @brief Заполнение массива значениями
  * @param arr Указатель на массив
  * @param n Размер массива
+ * @throws abort() при неверном выборе режима или выходе за диапазон
  */
 void fillArray(int* arr, const size_t n);
 
 /**
- * @brief Находит максимальный элемент массива
- * @param arr Указатель на массив
+ * @brief Вывод массива на экран
+ * @param arr Указатель на массив (константный)
  * @param n Размер массива
- * @return Максимальное значение
  */
-void printArray(int* arr, const size_t n);
+void printArray(const int* arr, const size_t n);
 
 /**
- * @brief Заменяет предпоследний элемент массива на максимальный
- * @param arr Указатель на массив
+ * @brief Поиск максимального по модулю элемента
+ * @param arr Указатель на массив (константный)
  * @param n Размер массива
- * @return Выводит изменёный элемент массива
+ * @return Элемент с максимальным абсолютным значением
  */
-int findMaxAbs(int* arr, const size_t n);
+int findMaxAbs(const int* arr, const size_t n);
 
 /**
- * @brief Заменяет предпоследний элемент массива на максимальный
+ * @brief Замена предпоследнего элемента на максимальный по модулю
  * @param arr Указатель на массив
  * @param n Размер массива
- * @return Выводит предупреждение если массив слишком мал или не найдено допустимых элементов для замены
  */
 void replacePenultimateWithMaxAbs(int* arr, const size_t n);
 
 /**
- * @brief Считает количество элементов, которые делятся на значение N без остатка
- * @param arr Указатель на массив
+ * @brief Подсчет элементов, делящихся на N без остатка
+ * @param arr Указатель на массив (константный)
  * @param n Размер массива
- * @param N число на которое элемент должен делиться без остатка
- * @return Количество элементов удовлетворяющих условию
+ * @param N Делитель
+ * @return Количество подходящих элементов
  */
-int countDivisibleByN(const int* arr, size_t n, const int N);
+int countDivisibleByN(const int* arr, const size_t n, const int N);
 
 /**
- * @brief Ищет номер первой пары соседних элементов с разными знаками
- * @param arr Указатель на массив
+ * @brief Поиск первой пары соседних элементов с разными знаками
+ * @param arr Указатель на массив (константный)
  * @param n Размер массива
  * @return Индекс первого элемента пары или -1 если пара не найдена
  */
-int findFirstPairWithDifferentSigns(const int* arr, size_t n);
+int findFirstPairWithDifferentSigns(const int* arr, const size_t n);
 
 /**
- * @brief Создает копию массива
- * @param source Исходный массив
+ * @brief Создание копии массива
+ * @param source Указатель на исходный массив (константный)
  * @param n Размер массива
  * @return Указатель на новый массив-копию
  */
-int* copyArray(const int* copiArr, const size_t n);
+int* copyArray(const int* source, const size_t n);
 
-/**
-* @brief Перечисление для выбора способа заполнения данных
-* @param MANUALY Выбор ручного заполнения массива
-* @param RANDOM Выбор автоматического заполнения массива
-*/
-const int RANDOM = 1;
-const int MANUALY = 2;
+// Константы для выбора режима заполнения
+const int RANDOM = 1; ///< Режим случайного заполнения
+const int MANUALY = 2; ///< Режим ручного заполнения
 
 /**
  * @brief Точка входа в программу
@@ -95,8 +94,10 @@ int main()
     size_t n = getSize();
     int* arr = new int[n];
     fillArray(arr, n);
+
     cout << "Original array: ";
     printArray(arr, n);
+
     int* copiArr = copyArray(arr, n);
 
     replacePenultimateWithMaxAbs(copiArr, n);
@@ -105,15 +106,21 @@ int main()
 
     cout << "Enter N for task 2: ";
     int N = getValue();
-    int count = countDivisibleByN(copiArr, n, N);
-    cout << "Number of elements divisible by N: " << count << endl;
+    if (N == 0) 
+    {
+        cout << "Error: Cannot divide by zero!" << endl;
+    }
+    else 
+    {
+        int count = countDivisibleByN(copiArr, n, N);
+        cout << "Number of elements divisible by N: " << count << endl;
+    }
 
     int pairIndex = findFirstPairWithDifferentSigns(copiArr, n);
-    if (pairIndex == -1)
-    {
+    if (pairIndex == -1) {
         cout << "No such pair found." << endl;
     }
-    else
+    else 
     {
         cout << "First pair index with different signs: " << pairIndex << endl;
     }
@@ -123,122 +130,37 @@ int main()
     return 0;
 }
 
-int getValue()
+void printArray(const int* arr, const size_t n) 
 {
-    int value = 0;
-    cin >> value;
-    if (cin.fail())
-    {
-        cout << "Invalid input. Aborting." << endl;
-        abort();
-    }
-    return value;
-}
-
-size_t getSize()
-{
-    cout << "Enter n: ";
-    int n = getValue();
-    checkN(n);
-    return size_t(n);
-}
-
-void checkN(const int n)
-{
-    if (n <= 0)
-    {
-        cout << "Invalid size. Aborting." << endl;
-        abort();
-    }
-}
-
-void fillArray(int* arr, const size_t n)
-{
-    cout << "Choose input method (" << RANDOM << " - random, " << MANUALY << " - manual): ";
-    int choice = getValue();
-    switch (choice)
-    {
-    case RANDOM:
-    {
-        srand(time(0));
-        for (size_t i = 0; i < n; i++)
-        {
-            int min = -30;
-            int max = 70;
-            arr[i] = min + rand() % (max - min + 1);
-        }
-        break;
-    }
-    case MANUALY:
-    {
-        for (size_t i = 0; i < n; i++)
-        {
-            cout << "Enter arr[" << i + 1 << "] (-30 to 70): ";
-            int value = getValue();
-
-            if (value >= -30 && value <= 70)
-            {
-                arr[i] = value;
-            }
-            else
-            {
-                cout << "Error! Value must be between -30 and 70" << endl;
-                abort();
-            }
-
-        }
-        break;
-    }
-    default:
-        cout << "Invalid choice. Aborting." << endl;
-        abort();
-    }
-}
-
-void printArray(int* arr, const size_t n)
-{
-    for (size_t i = 0; i < n; i++)
+    for (size_t i = 0; i < n; i++) 
     {
         cout << arr[i] << " ";
     }
     cout << endl;
 }
 
-int findMaxAbs(int* arr, const size_t n)
+int findMaxAbs(const int* arr, const size_t n) 
 {
-    int maxAbs = arr[1];
-    for (size_t i = 0; i < n; i++)
+    if (n == 0) return 0;
+
+    int maxAbs = abs(arr[0]);
+    int maxValue = arr[0];
+
+    for (size_t i = 1; i < n; i++) 
     {
-        if (arr[i] > maxAbs)
+        if (abs(arr[i]) > maxAbs) 
         {
-            maxAbs = arr[i];
+            maxAbs = abs(arr[i]);
+            maxValue = arr[i];
         }
     }
-    return maxAbs;
+    return maxValue;
 }
 
-void replacePenultimateWithMaxAbs(int* arr, const size_t n)
+int countDivisibleByN(const int* arr, const size_t n, const int N) 
 {
-    if (n < 2)
-    {
-        cout << "The array is too small to replace the penultimate element." << endl;
-        return;
-    }
+    if (N == 0) return 0;
 
-    int maxAbs = findMaxAbs(arr, n);
-
-    if (maxAbs == arr[1])
-    {
-        cout << "No valid elements found for replacement." << endl;
-    }
-    else
-    {
-        arr[n - 2] = maxAbs;
-    }
-}
-
-int countDivisibleByN(const int* arr, size_t n, const int N)
-{
     int count = 0;
     for (size_t i = 0; i < n; i++)
     {
@@ -250,11 +172,10 @@ int countDivisibleByN(const int* arr, size_t n, const int N)
     return count;
 }
 
-int findFirstPairWithDifferentSigns(const int* arr, size_t n)
+int findFirstPairWithDifferentSigns(const int* arr, const size_t n) 
 {
-    for (size_t i = 0; i < n - 1; i++)
-    {
-        if ((arr[i] >= 0 && arr[i + 1] < 0) || (arr[i] < 0 && arr[i + 1] >= 0))
+    for (size_t i = 0; i < n - 1; i++) {
+        if ((arr[i] >= 0 && arr[i + 1] < 0) || (arr[i] < 0 && arr[i + 1] >= 0)) 
         {
             return i;
         }
