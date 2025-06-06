@@ -90,13 +90,25 @@ int** replaceEvenWithZero(int** array, const size_t m, const size_t n);
 int findMinInRow(const int* row, const size_t n);
 
 /**
+ * @brief Вычисляет количество строк для вставки и новый размер массива
+ * @param array Исходный массив
+ * @param m Количество строк
+ * @param n Количество столбцов
+ * @param globalMin Глобальный минимум в массиве
+ * @return Количество строк для вставки
+ */
+size_t calculateInsertCount(int** array, size_t m, const size_t n, int globalMin);
+
+/**
  * @brief Вставляет строки (1,2,3...) после строк, содержащих минимальное значение
  * @param array Указатель на исходный массив
- * @param m Ссылка на количество строк (изменяется при вставке)
+ * @param m Количество строк
  * @param n Количество столбцов
- * @return Указатель на новый массив
+ * @param globalMin Глобальный минимум в массиве
+ * @param insertCount Количество строк для вставки
+ * @return Указатель на новый массив и его новый размер через pair
  */
-int** insertRowsAfterMin(int** array, size_t m, const size_t n, size_t& newM);
+pair<int**, size_t> insertRowsAfterMin(int** array, size_t m, const size_t n, int globalMin, size_t insertCount);
 
 /**
  * @brief Перечисление для выбора способа заполнения массива
@@ -111,28 +123,29 @@ enum {RANDOM = 5, MANUAL = 6};
  */
 int main()
 {
-    cout << "Enter m: ";
+    setlocale(LC_ALL, "ru_RU.UTF-8")
+    cout << "Введите M: ";
     size_t m = getSize();
-    cout << "Enter n: ";
+    cout << "Введите N: ";
     size_t n = getSize();
     
     int** array = getNewArray(m, n);
     
-    cout << "Enter the way to fill array: " << (int)MANUAL <<
-        " to fill manually, " << (int)RANDOM << " to fill randomly: ";
+    cout << "Введите вариант заполнения массива: " << (int)MANUAL <<
+        " заполнить вручную, " << (int)RANDOM << " заполнить случайно: ";
     int choice = getValue();
     
     int start = 0, end = 0;
     switch (choice)
     {    
         case RANDOM:
-            cout << "Enter start: ";
+            cout << "Введите начальное значение: ";
             start = getValue();
-            cout << "Enter end: ";
+            cout << "Введите конечное значение: ";
             end = getValue();
             if (start >= end) 
             {
-                cout << "Error: start must be less than end" << endl;
+                cout << "Ошибка: Начальное значение должно быть меньше конечного." << endl;
                 deleteArray(array, m, n);
                 return 1;
             }
@@ -142,28 +155,91 @@ int main()
             fillArray(array, m, n);
             break;
         default:
-            cout << "Error" << endl;
+            cout << "Ошибка" << endl;
             deleteArray(array, m, n);
             return 1;
     }
     
-    cout << "Original array:" << endl;
+    cout << "Исходный массив:" << endl;
     printArray(array, m, n);
     
     int** array1 = replaceEvenWithZero(array, m, n);
-    cout << "Array after replacing even elements with zero:" << endl;
+    cout << "Массив после перестановки элементов:" << endl;
     printArray(array1, m, n);
     
-    size_t newM;
-    int** array2 = insertRowsAfterMin(array1, m, n, newM);
-    cout << "Array after inserting rows:" << endl;
+    // Находим минимальные значения в каждой строке
+    int* rowMins = new int[m];
+    for (size_t i = 0; i < m; i++)
+    {
+        rowMins[i] = findMinInRow(array1[i], n);
+    }
+    
+    // Находим глобальный минимум во всем массиве
+    int globalMin = rowMins[0];
+    for (size_t i = 1; i < m; i++)
+    {
+        if (rowMins[i] < globalMin)
+        {
+            globalMin = rowMins[i];
+        }
+    }
+    
+    size_t insertCount = calculateInsertCount(array1, m, n, globalMin);
+    auto result = insertRowsAfterMin(array1, m, n, globalMin, insertCount);
+    int** array2 = result.first;
+    size_t newM = result.second;
+    
+    cout << "Массив после вставки столбцов" << endl;
     printArray(array2, newM, n);
     
     deleteArray(array, m, n);
     deleteArray(array1, m, n);
     deleteArray(array2, newM, n);
+    delete[] rowMins;
     
     return 0;
+}
+
+size_t calculateInsertCount(int** array, size_t m, const size_t n, int globalMin)
+{
+    size_t insertCount = 0;
+    for (size_t i = 0; i < m; i++)
+    {
+        if (findMinInRow(array[i], n) == globalMin)
+        {
+            insertCount++;
+        }
+    }
+    return insertCount;
+}
+
+pair<int**, size_t> insertRowsAfterMin(int** array, size_t m, const size_t n, int globalMin, size_t insertCount)
+{
+    size_t newM = m + insertCount;
+    int** newArray = getNewArray(newM, n);
+    
+    size_t newRow = 0;
+    for (size_t i = 0; i < m; i++)
+    {
+        // Копируем текущую строку
+        for (size_t j = 0; j < n; j++)
+        {
+            newArray[newRow][j] = array[i][j];
+        }
+        newRow++;
+        
+        // Если в строке был глобальный минимум, вставляем новую строку
+        if (findMinInRow(array[i], n) == globalMin)
+        {
+            for (size_t j = 0; j < n; j++)
+            {
+                newArray[newRow][j] = j + 1; // 1, 2, 3, ..., n
+            }
+            newRow++;
+        }
+    }
+    
+    return make_pair(newArray, newM);
 }
 
 int** replaceEvenWithZero(int** array, const size_t m, const size_t n)
@@ -195,72 +271,13 @@ int findMinInRow(const int* row, const size_t n)
     return minVal;
 }
 
-int** insertRowsAfterMin(int** array, size_t m, const size_t n, size_t& newM)
-{
-    // Находим минимальные значения в каждой строке
-    int* rowMins = new int[m];
-    for (size_t i = 0; i < m; i++)
-    {
-        rowMins[i] = findMinInRow(array[i], n);
-    }
-    
-    // Находим глобальный минимум во всем массиве
-    int globalMin = rowMins[0];
-    for (size_t i = 1; i < m; i++)
-    {
-        if (rowMins[i] < globalMin)
-        {
-            globalMin = rowMins[i];
-        }
-    }
-    
-    // Считаем, сколько строк нужно вставить
-    size_t insertCount = 0;
-    for (size_t i = 0; i < m; i++)
-    {
-        if (rowMins[i] == globalMin)
-        {
-            insertCount++;
-        }
-    }
-    
-    // Создаем новый массив с учетом вставляемых строк
-    newM = m + insertCount;
-    int** newArray = getNewArray(newM, n);
-    
-    // Копируем исходный массив, вставляя новые строки
-    size_t newRow = 0;
-    for (size_t i = 0; i < m; i++)
-    {
-        // Копируем текущую строку
-        for (size_t j = 0; j < n; j++)
-        {
-            newArray[newRow][j] = array[i][j];
-        }
-        newRow++;
-        
-        // Если в строке был глобальный минимум, вставляем новую строку
-        if (rowMins[i] == globalMin)
-        {
-            for (size_t j = 0; j < n; j++)
-            {
-                newArray[newRow][j] = j + 1; // 1, 2, 3, ..., n
-            }
-            newRow++;
-        }
-    }
-    
-    delete[] rowMins;
-    return newArray;
-}
-
 int getValue()
 {
     int value = 0;
     cin >> value;
     if (cin.fail())
     {
-        cout << "Error" << endl;
+        cout << "Ошибка" << endl;
         abort();
     }
     return value;
@@ -277,7 +294,7 @@ void checkN(const int n)
 {
     if (n <= 0)
     {
-        cout << "Error" << endl;
+        cout << "Ошибка" << endl;
         abort();
     }
 }
